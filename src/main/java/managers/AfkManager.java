@@ -14,10 +14,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import static adralik.srvBits.Main.config;
+
 public class AfkManager extends PlaceholderExpansion implements Listener {
 
     private final Map<UUID, Long> lastActivity = new HashMap<>();
-    private static final long AFK_TIME_MINUTES = 5;
+    private static final long AFK_TIME_MINUTES = config.getInt("afk-time", 1);
     private final long afkTimeout = AFK_TIME_MINUTES * 60 * 1000;
 
     public AfkManager() {

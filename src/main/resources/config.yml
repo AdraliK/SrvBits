@@ -7,5 +7,8 @@ unauthorized-message:
   nether: "your text 2"
   end: "your text 3"
 
+# afk time in minutes
+afk-time: 1
+
 spawn-radius: 0
 advancement-count-limit: 0
