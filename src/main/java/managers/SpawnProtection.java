@@ -103,7 +103,7 @@ public class SpawnProtection implements Listener {
     private void sendMessage(Player player) {
         int messageTime = 5;
         int advancementsCountLeft = ADVANCEMENT_COUNT - getAdvancementsCount(player);
-        String message = "Получите ещё " + advancementsCountLeft + "ஈ достижений для взаимодействия с начальной областью";
+        String message = "Получите ещё " + advancementsCountLeft + "ஈ для взаимодействия с начальной областью";
 
         new BukkitRunnable() {
             int count = 0;
