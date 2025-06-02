@@ -6,3 +6,6 @@ unauthorized-message:
   normal: "your text 1"
   nether: "your text 2"
   end: "your text 3"
+
+spawn-radius: 0
+advancement-count-limit: 0

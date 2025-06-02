@@ -98,7 +98,6 @@ public class LinkPlayerManager implements Listener {
         messageTasks.put(uuid, task);
     }
 
-
     private void applyTheEndEffect(Player player) {
         BukkitTask task = Bukkit.getScheduler().runTaskTimer(Main.javaPlugin, () -> {
             if (player.getWorld().getEnvironment() == World.Environment.THE_END) {
