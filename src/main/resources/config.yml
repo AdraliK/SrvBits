@@ -10,5 +10,13 @@ unauthorized-message:
 # afk time in minutes
 afk-time: 1
 
-spawn-radius: 0
-advancement-count-limit: 0
+spawn-protection:
+  spawn-radius: 0
+  advancement-count-limit: 0
+
+  # Accepts the '{advLastCount}' parameter
+  action-bar-message: "message"
+
+  attempt-count: 0
+  chat-message:
+    - "message 1"
