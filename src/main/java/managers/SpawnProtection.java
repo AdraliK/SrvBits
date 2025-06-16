@@ -94,6 +94,7 @@ public class SpawnProtection implements Listener {
     private boolean isInProtectedZone(Location loc) {
         World world = loc.getWorld();
         if (world == null) return false;
+        if (world.getEnvironment() != World.Environment.NORMAL) return false;
 
         Location spawn = world.getSpawnLocation();
         return loc.distanceSquared(spawn) <= RADIUS * RADIUS;
