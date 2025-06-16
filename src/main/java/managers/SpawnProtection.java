@@ -14,19 +14,26 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
-import java.util.Iterator;
+import java.util.*;
 
 import static adralik.srvBits.Main.config;
 
 public class SpawnProtection implements Listener {
 
-    private final int RADIUS = config.getInt("spawn-radius", 0);
-    private final int ADVANCEMENT_COUNT = config.getInt("advancement-count-limit", 0);
+    private static final String BASE_PATH = "spawn-protection";
+    private static final int RADIUS = config.getInt(BASE_PATH + ".spawn-radius", 0);
+    private static final int ADVANCEMENT_COUNT = config.getInt(BASE_PATH + ".advancement-count-limit", 0);
+    private static final String RAW_ACTION_BAR_MESSAGE = config.getString(BASE_PATH + ".action-bar-message", "message");
+    private static final int ATTEMPT_COUNT_LIMIT = config.getInt(BASE_PATH + ".attempt-count", 0);
+    private static final List<String> CHAT_MESSAGE = config.getStringList(BASE_PATH + ".chat-message");
+
+    private final Map<UUID, Integer> playerAttempts = new HashMap<>();
 
     @EventHandler
     public void onBlockBreak(BlockBreakEvent event) {
         Player player = event.getPlayer();
         if (shouldLimitPlayer(player, event.getBlock().getLocation())) {
+            notifyIfAttemptsExceeded(player);
             sendMessage(player);
             event.setCancelled(true);
         }
@@ -36,6 +43,7 @@ public class SpawnProtection implements Listener {
     public void onBlockPlace(BlockPlaceEvent event) {
         Player player = event.getPlayer();
         if (shouldLimitPlayer(player, event.getBlock().getLocation())) {
+            notifyIfAttemptsExceeded(player);
             sendMessage(player);
             event.setCancelled(true);
         }
@@ -45,6 +53,7 @@ public class SpawnProtection implements Listener {
     public void onBucketUse(PlayerBucketEmptyEvent event) {
         Player player = event.getPlayer();
         if (shouldLimitPlayer(player, event.getBlock().getLocation())) {
+            notifyIfAttemptsExceeded(player);
             sendMessage(player);
             event.setCancelled(true);
         }
@@ -54,6 +63,7 @@ public class SpawnProtection implements Listener {
     public void onBucketFill(PlayerBucketFillEvent event) {
         Player player = event.getPlayer();
         if (shouldLimitPlayer(player, event.getBlock().getLocation())) {
+            notifyIfAttemptsExceeded(player);
             sendMessage(player);
             event.setCancelled(true);
         }
@@ -65,10 +75,16 @@ public class SpawnProtection implements Listener {
         Player player = event.getPlayer();
         if (event.getItem().getType() == Material.FLINT_AND_STEEL) {
             if (shouldLimitPlayer(player, event.getPlayer().getLocation())) {
+                notifyIfAttemptsExceeded(player);
                 sendMessage(player);
                 event.setCancelled(true);
             }
         }
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        playerAttempts.remove(event.getPlayer().getUniqueId());
     }
 
     private boolean shouldLimitPlayer(Player player, Location loc) {
@@ -103,7 +119,7 @@ public class SpawnProtection implements Listener {
     private void sendMessage(Player player) {
         int messageTime = 5;
         int advancementsCountLeft = ADVANCEMENT_COUNT - getAdvancementsCount(player);
-        String message = "Получите ещё " + advancementsCountLeft + "ஈ для взаимодействия с начальной областью";
+        String message = RAW_ACTION_BAR_MESSAGE.replace("{advLastCount}", String.valueOf(advancementsCountLeft));
 
         new BukkitRunnable() {
             int count = 0;
@@ -117,6 +133,19 @@ public class SpawnProtection implements Listener {
                 count++;
             }
         }.runTaskTimer(Main.javaPlugin, 0L, 20L);
+    }
+
+    private void notifyIfAttemptsExceeded(Player player) {
+        UUID playerId = player.getUniqueId();
+        int playerAttemptCount = playerAttempts.merge(playerId, 1, Integer::sum);
+
+        if (playerAttemptCount == 1) {
+            //сюда добавить звук
+            CHAT_MESSAGE.forEach(player::sendMessage);
+        }
+        if (playerAttemptCount >= ATTEMPT_COUNT_LIMIT) {
+            playerAttempts.remove(playerId);
+        }
     }
 }
 

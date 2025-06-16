@@ -8,6 +8,7 @@ import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
@@ -56,6 +57,11 @@ public class AfkManager extends PlaceholderExpansion implements Listener {
 
     public boolean isAfk(Player player) {
         return System.currentTimeMillis() - lastActivity.getOrDefault(player.getUniqueId(), System.currentTimeMillis()) > afkTimeout;
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        lastActivity.remove(event.getPlayer().getUniqueId());
     }
 
     @Override
