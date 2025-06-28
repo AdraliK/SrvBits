@@ -97,7 +97,10 @@ public class SpawnProtection implements Listener {
         if (world.getEnvironment() != World.Environment.NORMAL) return false;
 
         Location spawn = world.getSpawnLocation();
-        return loc.distanceSquared(spawn) <= RADIUS * RADIUS;
+
+        return Math.abs(loc.getX() - spawn.getX()) <= RADIUS &&
+                Math.abs(loc.getY() - spawn.getY()) <= RADIUS &&
+                Math.abs(loc.getZ() - spawn.getZ()) <= RADIUS;
     }
 
     private int getAdvancementsCount(Player player) {

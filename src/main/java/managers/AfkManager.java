@@ -87,7 +87,7 @@ public class AfkManager extends PlaceholderExpansion implements Listener {
     @Override
     public String onPlaceholderRequest(Player player, @NotNull String identifier) {
         if (player == null) return "";
-        return isAfk(player) ? "☽" : "noAFK";
+        return isAfk(player) ? "ກ" : "noAFK";
     }
 }
 
