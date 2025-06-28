@@ -20,3 +20,7 @@ spawn-protection:
   attempt-count: 0
   chat-message:
     - "message 1"
+  sound:
+    type: "ENTITY_PLAYER_LEVELUP"
+    volume: 1.0
+    pitch: 1.0

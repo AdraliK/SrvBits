@@ -1,16 +1,13 @@
 package managers;
 
 import adralik.srvBits.Main;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.advancement.Advancement;
 import org.bukkit.advancement.AdvancementProgress;
 import org.bukkit.entity.Player;
 import org.bukkit.event.*;
-import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.block.BlockPlaceEvent;
+import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -27,12 +24,17 @@ public class SpawnProtection implements Listener {
     private static final int ATTEMPT_COUNT_LIMIT = config.getInt(BASE_PATH + ".attempt-count", 0);
     private static final List<String> CHAT_MESSAGE = config.getStringList(BASE_PATH + ".chat-message");
 
+    private static final String SOUND_TYPE = config.getString(BASE_PATH + ".sound.type", "null");
+    private static final double SOUND_VOLUME = config.getDouble(BASE_PATH + ".sound.volume", 1);
+    private static final double SOUND_PITCH = config.getDouble(BASE_PATH + ".sound.pitch", 1);
+
     private final Map<UUID, Integer> playerAttempts = new HashMap<>();
 
     @EventHandler
-    public void onBlockBreak(BlockBreakEvent event) {
+    public void onBucketLavaUse(PlayerBucketEmptyEvent event) {
         Player player = event.getPlayer();
-        if (shouldLimitPlayer(player, event.getBlock().getLocation())) {
+        if (event.getBucket() == Material.LAVA_BUCKET &&
+                shouldLimitPlayer(player, event.getBlock().getLocation())) {
             notifyIfAttemptsExceeded(player);
             sendMessage(player);
             event.setCancelled(true);
@@ -40,9 +42,10 @@ public class SpawnProtection implements Listener {
     }
 
     @EventHandler
-    public void onBlockPlace(BlockPlaceEvent event) {
+    public void onBucketLavaFill(PlayerBucketFillEvent event) {
         Player player = event.getPlayer();
-        if (shouldLimitPlayer(player, event.getBlock().getLocation())) {
+        if (event.getBucket() == Material.LAVA_BUCKET &&
+                shouldLimitPlayer(player, event.getBlock().getLocation())) {
             notifyIfAttemptsExceeded(player);
             sendMessage(player);
             event.setCancelled(true);
@@ -50,35 +53,37 @@ public class SpawnProtection implements Listener {
     }
 
     @EventHandler
-    public void onBucketUse(PlayerBucketEmptyEvent event) {
-        Player player = event.getPlayer();
-        if (shouldLimitPlayer(player, event.getBlock().getLocation())) {
-            notifyIfAttemptsExceeded(player);
-            sendMessage(player);
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onBucketFill(PlayerBucketFillEvent event) {
-        Player player = event.getPlayer();
-        if (shouldLimitPlayer(player, event.getBlock().getLocation())) {
-            notifyIfAttemptsExceeded(player);
-            sendMessage(player);
-            event.setCancelled(true);
-        }
-    }
-
-    @EventHandler
-    public void onFlintUse(PlayerInteractEvent event) {
+    public void onIllegalItemUse(PlayerInteractEvent event) {
+        if (event.getAction() != Action.RIGHT_CLICK_BLOCK) return;
         if (!event.hasItem()) return;
+        if (event.getClickedBlock() == null) return;
         Player player = event.getPlayer();
-        if (event.getItem().getType() == Material.FLINT_AND_STEEL) {
-            if (shouldLimitPlayer(player, event.getPlayer().getLocation())) {
+        if (illegalItems.contains(event.getItem().getType())) {
+            if (shouldLimitPlayer(player, event.getClickedBlock().getLocation())) {
                 notifyIfAttemptsExceeded(player);
                 sendMessage(player);
                 event.setCancelled(true);
             }
+        }
+    }
+
+    private final List<Material> illegalItems = List.of(
+            Material.FLINT_AND_STEEL,
+            Material.FIRE_CHARGE,
+            Material.END_CRYSTAL,
+            Material.TNT,
+            Material.DISPENSER,
+            Material.DROPPER
+            );
+
+    @EventHandler
+    public void onPlayerHitPlayer(EntityDamageByEntityEvent event) {
+        if (!(event.getDamager() instanceof Player attacker)) return;
+        if (!(event.getEntity() instanceof Player victim)) return;
+
+        if (shouldLimitPlayer(attacker, attacker.getLocation()) ||
+                shouldLimitPlayer(victim, attacker.getLocation())) {
+            event.setCancelled(true);
         }
     }
 
@@ -144,11 +149,19 @@ public class SpawnProtection implements Listener {
         int playerAttemptCount = playerAttempts.merge(playerId, 1, Integer::sum);
 
         if (playerAttemptCount == 1) {
-            //сюда добавить звук
+            playSound(player);
             CHAT_MESSAGE.forEach(player::sendMessage);
         }
         if (playerAttemptCount >= ATTEMPT_COUNT_LIMIT) {
             playerAttempts.remove(playerId);
+        }
+    }
+
+    private void playSound(Player player) {
+        try {
+            player.playSound(player, Sound.valueOf(SOUND_TYPE), (float) SOUND_VOLUME, (float) SOUND_PITCH);
+        } catch (IllegalArgumentException e) {
+            Bukkit.getLogger().severe("invalid sound type: " + SOUND_TYPE);
         }
     }
 }
