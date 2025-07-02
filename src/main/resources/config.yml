@@ -7,8 +7,8 @@ unauthorized-message:
   nether: "your text 2"
   end: "your text 3"
 
-# afk time in minutes
-afk-time: 1
+# afk time in seconds
+afk-time: 60
 
 spawn-protection:
   spawn-radius: 0
@@ -20,6 +20,24 @@ spawn-protection:
   attempt-count: 0
   chat-message:
     - "message 1"
+  sound:
+    type: "ENTITY_PLAYER_LEVELUP"
+    volume: 1.0
+    pitch: 1.0
+
+MODT:
+  join-message-delay: 10
+  links:
+    - id: "link1"
+      name: "name1"
+      url: "url1"
+      description: "desc1"
+    - id: "link1"
+      name: "url2"
+      url: "url12"
+      description: "desc2"
+  chat-message:
+    - "message 1 {link1}"
   sound:
     type: "ENTITY_PLAYER_LEVELUP"
     volume: 1.0
