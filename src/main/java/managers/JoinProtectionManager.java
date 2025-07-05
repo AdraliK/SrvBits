@@ -9,6 +9,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
@@ -23,8 +24,8 @@ public class JoinProtectionManager implements Listener {
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
 
-        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 3, 255, false, false, false));
-        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 20 * 3, 128, false, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.SLOWNESS, 20 * 3, 256, false, false, false));
+        player.addPotionEffect(new PotionEffect(PotionEffectType.JUMP_BOOST, 20 * 3, 256, false, false, false));
         player.addPotionEffect(new PotionEffect(PotionEffectType.BLINDNESS, 20 * 3, 1, false, false, false));
 
         player.setInvulnerable(true);
