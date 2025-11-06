@@ -17,6 +17,8 @@ import static adralik.srvBits.Main.config;
 
 public class SpawnProtection implements Listener {
 
+    private static final String PERMISSION = config.getString("authorized-permission", "permission");
+
     private static final String BASE_PATH = "spawn-protection";
     private static final int RADIUS = config.getInt(BASE_PATH + ".spawn-radius", 0);
     private static final int ADVANCEMENT_COUNT = config.getInt(BASE_PATH + ".advancement-count-limit", 0);
@@ -93,7 +95,9 @@ public class SpawnProtection implements Listener {
     }
 
     private boolean shouldLimitPlayer(Player player, Location loc) {
-        return isInProtectedZone(loc) && getAdvancementsCount(player) < ADVANCEMENT_COUNT;
+        return isInProtectedZone(loc)
+                && getAdvancementsCount(player) < ADVANCEMENT_COUNT
+                && !player.hasPermission(PERMISSION);
     }
 
     private boolean isInProtectedZone(Location loc) {
