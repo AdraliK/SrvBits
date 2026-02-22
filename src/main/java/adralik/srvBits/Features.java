@@ -1,9 +1,6 @@
 package adralik.srvBits;
 
-import managers.AfkManager;
-import managers.JoinProtectionManager;
-import managers.LinkPlayerManager;
-import managers.SpawnProtection;
+import managers.*;
 import other.ModtMesage;
 
 import static adralik.srvBits.Main.javaPlugin;
@@ -17,6 +14,8 @@ public class Features {
         pluginManager.registerEvents(new AfkManager(), javaPlugin);
         pluginManager.registerEvents(new SpawnProtection(), javaPlugin);
         pluginManager.registerEvents(new ModtMesage(), javaPlugin);
+
+        new SkinTypePlaceholder().register();
     }
 
 }
